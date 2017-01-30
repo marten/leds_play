@@ -14,7 +14,7 @@ defmodule LedsPlay do
       supervisor(LedsPlay.Endpoint, []),
       
       worker(LedsPlay.Strip, [%{pin: 18, count: 200}]),
-      worker(LedsPlay.Grid, [20, 10]),
+      worker(LedsPlay.GridServer, [20, 10]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

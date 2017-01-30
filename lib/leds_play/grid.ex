@@ -1,53 +1,26 @@
 defmodule LedsPlay.Grid do
-  use GenServer
+  @enforce_keys [:width, :height]
+  defstruct [:width, :height, pixels: []]
 
-  def start_link(width, height) do
-    GenServer.start_link(__MODULE__, [width, height], name: __MODULE__)
+  alias LedsPlay.Grid
+
+  def black(width, height) do
+    pixels = for _ <- 1..(width*height), do: {0, 0, 0}
+    %Grid{width: width, height: height, pixels: pixels}
   end
 
-  def get(x, y) do
-    GenServer.call(__MODULE__, {:get, x, y})
+  def at(grid, coord) do
+    Enum.at(grid.pixels, index_of(grid, coord))
   end
 
-  def set(x, y, r, g, b) do
-    GenServer.cast(__MODULE__, {:set, x, y, r, g, b})
-  end
-
-  def render() do
-    GenServer.cast(__MODULE__, {:render})
+  def set(grid, coord, color) do
+    pixels = List.replace_at(grid.pixels, index_of(grid, coord), color)
+    %Grid{grid | pixels: pixels}
   end
 
   ###
 
-  def init([width, height]) do
-    grid = Enum.map(1..width, fn x ->
-      Enum.map(1..height, fn y ->
-        %{x: x, y: y, r: 0, g: 0, b: 0}
-      end)
-    end)
-    {:ok, %{grid: grid}}
-  end
-
-  def handle_call({:get, x, y}, _from, %{grid: grid} = state) do
-    {:reply, grid |> Enum.at(x) |> Enum.at(y), state}
-  end
-
-  def handle_cast({:set, x, y, r, g, b}, %{grid: grid} = state) do
-    old_cell  = grid |> Enum.at(x) |> Enum.at(y)
-    new_cell  = Map.merge(old_cell, %{r: r, g: g, b: b})
-    new_col   = List.replace_at(Enum.at(grid, x), y, new_cell)
-    new_grid  = List.replace_at(grid, x, new_col)
-    {:noreply, Map.merge(state, %{grid: new_grid})}
-  end
-
-  def handle_cast({:render}, %{grid: grid} = state) do
-    data = Enum.flat_map(grid, fn col ->
-      Enum.map(col, fn %{r: r, g: g, b: b} ->
-        {r, g, b}
-      end)
-    end)
-
-    LedsPlay.Strip.render(0, {100, data})
-    {:noreply, state}
+  defp index_of(grid, {x, y}) do
+    x + y*grid.width
   end
 end
