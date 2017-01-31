@@ -1,4 +1,4 @@
-defmodule LedsPlay.GridServerTest do
+defmodule LedsPlay.GridTest do
   use ExUnit.Case
 
   alias LedsPlay.Grid
@@ -17,4 +17,3 @@ defmodule LedsPlay.GridServerTest do
     assert grid |> Grid.at(coord) == {1, 2, 3}
   end
 end
-

@@ -2,7 +2,6 @@ defmodule LedsPlay.GridServerTest do
   use ExUnit.Case
 
   alias LedsPlay.GridServer
-  alias LedsPlay.Pixel
 
   setup do
     {:ok, server} = LedsPlay.GridServer.start_link(20, 10)
@@ -29,21 +28,11 @@ defmodule LedsPlay.GridServerTest do
     end
   end
   
-  test "merge", %{server: server} do
-    GridServer.merge(server, [
-          %Pixel{position: {2, 2}, color: {255, 0, 0}},
-          %Pixel{position: {2, 3}, color: {0, 255, 0}},
-          %Pixel{position: {2, 4}, color: {0, 0, 255}},
-        ])
-    GridServer.render(server)
-    :timer.sleep(100)
-  end
-
   test "strip index" do
-    assert GridServer.strip_index(0,  0, 20, 10) == 0
-    assert GridServer.strip_index(19, 0, 20, 10) == 19
-    assert GridServer.strip_index(0,  1, 20, 10) == 39
-    assert GridServer.strip_index(19, 9, 20, 10) == 180
+    assert GridServer.strip_index({0,  0}, 20) == 0
+    assert GridServer.strip_index({19, 0}, 20) == 19
+    assert GridServer.strip_index({0,  1}, 20) == 39
+    assert GridServer.strip_index({19, 9}, 20) == 180
   end
 
 end

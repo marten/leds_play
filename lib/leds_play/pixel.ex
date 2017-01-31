@@ -1,3 +1,3 @@
 defmodule LedsPlay.Pixel do
-  defstruct [:position, :color]
+  defstruct [:pos, :rgb]
 end
