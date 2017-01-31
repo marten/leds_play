@@ -1,55 +1,32 @@
 defmodule LedsPlay.GridServer do
-  use GenServer
+  use ExActor.GenServer
 
   alias LedsPlay.Grid
 
-  def start_link(width, height) do
-    GenServer.start_link(__MODULE__, [width, height])
+  defstart start_link(width, height), do: initial_state(Grid.black(width, height))
+
+  defcall get(x, y), state: grid do
+    reply(Grid.at(grid, {x, y}))
   end
 
-  def get(server, x, y) do
-    GenServer.call(server, {:get, x, y})
+  defcast set(x, y, r, g, b), state: grid do
+    new_state(Grid.set(grid, {x, y}, {r, g, b}))
   end
 
-  def set(server, x, y, r, g, b) do
-    GenServer.cast(server, {:set, x, y, r, g, b})
+  defcast clear(), state: grid do
+    new_state(Grid.clear(grid))
   end
 
-  def clear(server) do
-    GenServer.cast(server, {:clear})
-  end
-
-  def render(server) do
-    GenServer.cast(server, {:render})
-  end
-
-  ###
-
-  def init([width, height]) do
-    grid = Grid.black(width, height)
-    {:ok, grid}
-  end
-
-  def handle_call({:get, x, y}, _from, grid) do
-    {:reply, Grid.at(grid, {x, y})}
-  end
-
-  def handle_cast({:set, x, y, r, g, b}, grid) do
-    {:noreply, Grid.set(grid, {x, y}, {r, g, b})}
-  end
-
-  def handle_cast({:clear}, grid) do
-    {:noreply, Grid.clear(grid)}
-  end
-
-  def handle_cast({:render}, grid) do
+  defcast render(), state: grid do
     data = Grid.to_pixels(grid)
     |> Enum.sort_by(fn pixel -> strip_index(pixel.pos, grid.width) end)
     |> Enum.map(fn pixel -> pixel.rgb end)
 
     LedsPlay.Strip.render(0, {100, data})
-    {:noreply, grid}
+    noreply
   end
+
+  ###
 
   def strip_index({x, y}, width) do
     if rem(y, 2) == 1 do
