@@ -23,7 +23,7 @@ defmodule LedsPlay.Grid do
     %Grid{grid | data: data}
   end
 
-  def pixels(grid) do
+  def to_pixels(grid) do
     grid.data
     |> Stream.with_index
     |> Enum.map(fn {rgb, idx} ->

@@ -43,7 +43,7 @@ defmodule LedsPlay.GridServer do
   end
 
   def handle_cast({:render}, grid) do
-    data = Grid.pixels(grid)
+    data = Grid.to_pixels(grid)
     |> Enum.sort_by(fn pixel -> strip_index(pixel.pos, grid.width) end)
     |> Enum.map(fn pixel -> pixel.rgb end)
 
